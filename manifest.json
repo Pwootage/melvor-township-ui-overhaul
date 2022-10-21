@@ -1,0 +1,9 @@
+{
+  "namespace": "townshipUiOverhaul",
+  "setup": "setup.mjs",
+  "load": [
+    "components/NavItem.html",
+    "components/TOTablePage.html",
+    "components/TOTablePage.css"
+  ]
+}

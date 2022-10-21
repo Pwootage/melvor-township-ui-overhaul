@@ -1,0 +1,79 @@
+.tso-row {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+}
+
+.tso-column {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+}
+
+.tso-center {
+  justify-content: center;
+  align-items: center;
+}
+
+.tso-space-between {
+  justify-content: space-between;
+}
+
+.tso-stretch {
+  justify-content: stretch;
+}
+
+.tso-building {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.tso-building-name {
+  width: 160px;
+  text-align: center;
+}
+
+.tso-building-icon {
+  width: 80px;
+  height: 80px;
+}
+
+.tso-build-btn {
+  width: 48px;
+  height: 48px;
+  text-align: center;
+  vertical-align: center;
+  background: #232a35;
+  border-radius: .5rem;
+  color: #f5f5f5;
+}
+
+/* idk why this isn't avaiable, it's in fa5-free */
+.fa-house::before {
+  content: "\f015";
+}
+
+.tso-biome {
+  margin: 12px;
+}
+
+.tso-biome-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.tso-build-col {
+  margin: 4px;
+}
+
+.tso-biome-resource > * {
+  margin: 2px;
+}
+
+.tso-biome-resource img {
+  width: 16px;
+  height: 16px;
+}
+
+body.darkMode .tso-building {
+  background: #2d3542;
+}

@@ -1,0 +1,99 @@
+<template id="tso-table-page">
+  <div id="TSO_DIV_TABLE" class="d-none">
+    <div class="row no-gutters">
+      <div class="col-xl-2 col-lg-4 col-md-12 pr-2 font-size-sm">
+        <div class="border-botsom border-crafting text-warning w-100 pb-1 mb-2 font-size-base">Filter</div>
+
+        <div v-for="resource in resources" v-scope="TOResourceRow({resource})"></div>
+
+      </div>
+      <div class="col-xl-10 col-lg-10 col-md-12 pl-2">
+        <div class="border-botsom border-crafting text-warning w-100 pb-1 mb-2 font-size-base">Buildings</div>
+        <div class="tso-building-table column">
+          <div v-for="building in buildings" v-scope="TOBuildingRow({building})"> </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="tso-resource-row">
+  <div class="tso-resource media d-flex align-items-center" @vue:mounted="mounted($el)" @vue:unmounted="unmounted">
+    <div class="ml-1 mr-1">
+      <img class="skill-icon-xs mr-1" :src=resource.media :alt=resource.name>
+    </div>
+    <div class="media-body">
+      <div>
+        <span class="mr-1">
+          <small class="font-w600">{{numberWithCommas(Math.floor(resource.amount))}}</small>
+          <small><span :class="{'text-danger': resource.netRate < 0, 'text-success': resource.netRate > 0 }">
+              {{resource.netRate >= 0 ? '+' : ''}}{{numberWithCommas(resource.netRate.toFixed(2))}} /t
+            </span></small>
+        </span>
+      </div>
+    </div>
+</template>
+
+<template id="tso-building-row">
+  <div class="tso-building media d-flex align-items-center row" @vue:mounted="mounted($el)" @vue:unmounted="unmounted">
+    <div class="tso-building-name tso-column tso-center">
+      <div class="text-warning">{{building.name}}</div>
+      <img class="tso-building-icon" :src=building.media :alt=building.name />
+      <div class="tso-row tso-center">
+        <div class="tso-biome-resource tso-row" v-for="resource in building.costs">
+          <img :src=resource.media />
+          <small>{{resource.quantity.toFixed(0)}}</small>
+        </div>
+      </div>
+    </div>
+    <div class="tso-column tso-biome" v-for="biome in building.biomes">
+      <div><img class="tso-biome-icon" :src=biome.media /> {{biome.name}}</div>
+      <div class="tso-row">
+        <small>
+          <i class="fa fa-house"></i> {{biome.count}}
+          <i class="fa fa-hammer"></i> {{biome.freeCount}}
+          <i class="fa fa-money-bill"></i> {{ biome.canBePurchased}}
+        </small>
+      </div>
+      <div class="tso-column">
+        <div v-if="biome.education"><small>
+            <i class="fa fa-book-open"></i>
+            <span
+              :class="{'text-danger': biome.education < 0, 'text-success': biome.education > 0 }">{{plusIfPositive(biome.education)}}{{biome.education}}</span>
+          </small></div>
+        <div v-if="biome.happiness"><small>
+            <i class="fa fa-smile"></i>
+            <span
+              :class="{'text-danger': biome.happiness < 0, 'text-success': biome.happiness > 0 }">{{plusIfPositive(biome.happiness)}}{{biome.happiness}}</span>
+          </small></div>
+        <div v-if="biome.population"><small>
+            <i class="fa fa-house-user"></i>
+            <span
+              :class="{'text-danger': biome.population < 0, 'text-success': biome.population > 0 }">{{plusIfPositive(biome.population)}}{{biome.population}}</span>
+          </small></div>
+        <div v-if="biome.storage"><small>
+            <i class="fa fa-box-open"></i>
+            <span
+              :class="{'text-danger': biome.storage < 0, 'text-success': biome.storage > 0 }">{{plusIfPositive(biome.storage)}}{{biome.storage}}</span>
+          </small></div>
+        <div v-if="biome.worship"><small>
+            <i class="fa fa-church"></i>
+            <span
+              :class="{'text-danger': biome.worship < 0, 'text-success': biome.worship > 0 }">{{plusIfPositive(biome.worship)}}{{biome.worship}}</span>
+          </small></div>
+
+        <div class="tso-biome-resource tso-row" v-for="resource in biome.resources">
+          <img :src=resource.media />
+          <small
+            :class="{'text-danger': resource.amount < 0, 'text-success': resource.amount > 0 }">{{plusIfPositive(resource.amount)}}{{resource.amount.toFixed(2)}}</small>
+        </div>
+      </div>
+      <div class="tso-row tso-space-between tso-build-col">
+        <a class="tso-build-btn tso-row tso-center" v-if="building.buildable"><i
+            class="fa fa-hammer text-warning"></i></a>
+        <a class="tso-build-btn tso-row tso-center" v-if="building.upgradable"><i
+            class="fa fa-arrow-up text-success"></i></a>
+      </div>
+    </div>
+  </div>
+</template>

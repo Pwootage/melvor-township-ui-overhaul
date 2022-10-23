@@ -7,7 +7,7 @@ export async function setup(ctx) {
   const TABLE_PAGE = "tso:TablePage";
 
   ctx.onInterfaceReady(() => {
-    const btnEle = ui.create(NavItem({ page: TABLE_PAGE }), document.getElementById('township-category-menu').querySelector('.nav-main'))
+    const btnEle = ui.create(NavItem({ page: TABLE_PAGE, title: 'Grid', faIcon: 'fa-th' }), document.getElementById('township-category-menu').querySelector('.nav-main'))
       .querySelector(`[page="${TABLE_PAGE}"]`);
     townshipUI.defaultElements.btn.tsoTable = btnEle;
 

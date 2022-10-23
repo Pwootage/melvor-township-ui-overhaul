@@ -12,7 +12,6 @@
           <label><input type="checkbox" v-model="showOnlyUpgradable" class="ml-2" /> Show Only Upgradable</label>
           <label><input type="checkbox" v-model="showUnbuildable" class="ml-2" /> Show Unbuildable</label>
           <label v-if="showUnbuildable"><input type="checkbox" v-model="showLocked" class="ml-2" /> Show Locked</label>
-          <label><input type="checkbox" v-model="hideAll" class="ml-2" /> hide all</label>
         </div>
         <div class="tso-building-table column" v-if="!hideAll">
           <div v-for="building in buildings" :key="building.id" v-scope="TOBuildingRow(building)"></div>

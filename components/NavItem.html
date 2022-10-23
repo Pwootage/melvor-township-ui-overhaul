@@ -2,8 +2,9 @@
   <li class="nav-main-item">
     <a class="nav-main-link" :page=page class="nav-main-link township-tab-selected" data-toggle="class-toggle"
       data-target="#horizontal-navigation-township" data-class="d-none" @click="click()">
-      <img class="skill-icon-sm m-0 mr-2" src="assets/media/main/settings_header.svg">
-      <span class="nav-main-link-name font-w600">test</span>
+      <img v-if="media" class="skill-icon-sm m-0 mr-2" :src=media />
+      <i v-if="faIcon" :class="'fas fa-fw ' + faIcon"></i>
+      <span class="nav-main-link-name font-w600">{{title}}</span>
     </a>
   </li>
 </template>

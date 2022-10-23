@@ -1,6 +1,4 @@
 export async function setup(ctx) {
-  console.log('Hello From My Mod!', ctx);
-
   const { NavItem } = await ctx.loadModule('components/NavItem.mjs');
   const { TOTablePage } = await ctx.loadModule('components/TOTablePage.mjs');
 
@@ -45,7 +43,7 @@ export async function setup(ctx) {
       return result;
     });
 
-    changePage(game.pages.getObjectByID("melvorD:Township"))
-    btnEle.click();
+    // changePage(game.pages.getObjectByID("melvorD:Township"))
+    // btnEle.click();
   });
 }

@@ -133,16 +133,17 @@ export function TOTablePage(params) {
         const popRequired = game.township.populationForTier[building.tier].population;
         const resourcesMet = building.costs.every(({ resource, quantity }) => resource.amount >= quantity);
 
-        const reqsMet = (townshipLevel >= levelRequired) && (townshipPop >= popRequired) && resourcesMet;
+        const reqsMet = (townshipLevel >= levelRequired) && (townshipPop >= popRequired);
 
         const buildable = !building.upgradesFrom;
         const upgradable = !!building.upgradesTo;
         let upgradeReqsMet = false;
+        let upgradeResourcesMet = false;
         if (upgradable) {
           const upgradeLevelRequired = game.township.populationForTier[building.upgradesTo.tier].level;
           const upgradePopRequired = game.township.populationForTier[building.upgradesTo.tier].population;
-          const upgradeResourcesMet = building.upgradesTo.costs.every(({ resource, quantity }) => resource.amount >= quantity);
-          upgradeReqsMet = (townshipLevel >= upgradeLevelRequired) && (townshipPop >= upgradePopRequired) && upgradeResourcesMet;
+          upgradeResourcesMet = building.upgradesTo.costs.every(({ resource, quantity }) => resource.amount >= quantity);
+          upgradeReqsMet = (townshipLevel >= upgradeLevelRequired) && (townshipPop >= upgradePopRequired);
         }
 
         const anyBiomeBuildable = (buildable && biomes.some(biome => biome.canBePurchased > 0));
@@ -154,6 +155,7 @@ export function TOTablePage(params) {
           media: building.media,
           tier: building.tier,
           reqsMet,
+          resourcesMet,
           buildable,
           upgradable,
           upgradeToId: building.upgradesTo?.id,

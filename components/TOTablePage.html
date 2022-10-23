@@ -157,10 +157,10 @@
         </div>
         <div class="tso-row tso-space-between tso-build-col">
           <button class="tso-build-btn tso-row tso-center" v-if="building.buildable && !showOnlyUpgradable"
-            :disabled="!building.reqsMet || biome.freeCount <= 0" @click="build(building, biome)"><i
+            :disabled="!building.reqsMet || !building.resourcesMet || biome.freeCount <= 0" @click="build(building, biome)"><i
               class="fa fa-hammer tso-build-icon" :reqsmet="building.reqsMet"></i></button>
           <button class="tso-build-btn tso-row tso-center" v-if="building.upgradable"
-            :disabled="!building.upgradeReqsMet || biome.count <= 0" @click="upgrade(building, biome)"><i
+            :disabled="!building.upgradeReqsMet || !building.upgradeResourcesMet || biome.count <= 0" @click="upgrade(building, biome)"><i
               class="fa fa-arrow-up tso-upgrade-icon" :reqsmet="building.upgradeReqsMet"></i></button>
         </div>
 </template>

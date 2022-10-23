@@ -40,7 +40,7 @@ export function TOTablePage(params) {
       });
       if (this.resourceFilters.length == 0) {
         for (const resource of game.township.resourceDisplayOrder) {
-          this.filters.push({
+          this.resourceFilters.push({
             resource: {
               id: resource.id,
               name: resource.name,
@@ -53,7 +53,7 @@ export function TOTablePage(params) {
       } else {
         for (const filter of this.resourceFilters) {
           filter.resource.amount = game.township.resources.getObjectByID(filter.resource.id).amount;
-          filter.resource.netRate = game.township.getNetResourceRate(filter.resource);
+          filter.resource.netRate = game.township.getNetResourceRate(game.township.resources.getObjectByID(filter.resource.id));
         }
       }
 
@@ -160,6 +160,7 @@ export function TOTablePage(params) {
           upgradable,
           upgradeToId: building.upgradesTo?.id,
           upgradeReqsMet,
+          upgradeResourcesMet,
           anyBiomeBuildable,
           anyBiomeUpgradable,
           levelRequired,

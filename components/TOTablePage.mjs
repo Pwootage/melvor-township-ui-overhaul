@@ -68,10 +68,10 @@ export function TOTablePage(params) {
             });
           }
           const count = biome.buildingsBuilt.get(building) ?? 0;
-          const freeCount = biome.availableInMap;
           const purchased = biome.amountPurchased;
           const total = biome.totalInMap;
           const canBePurchased = total - purchased;
+          const freeCount = purchased - [...biome.buildingsBuilt.values()].reduce((a, b) => a + b, 0);
 
           biomes.push({
             biome: biome.id,

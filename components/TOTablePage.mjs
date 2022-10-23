@@ -156,6 +156,7 @@ export function TOTablePage(params) {
           reqsMet,
           buildable,
           upgradable,
+          upgradeToId: building.upgradesTo?.id,
           upgradeReqsMet,
           anyBiomeBuildable,
           anyBiomeUpgradable,
@@ -178,14 +179,22 @@ export function TOTablePage(params) {
       }
     },
     build(building, biome) {
+      game.township.setBuildQty(1);
+      game.township.upgradeQty = 1;
+      townshipUI.updateAllBuildingUpgradeCosts();
+      townshipUI.updateUpgradeDropdowns();
       game.township.setTownBiome(game.township.biomes.getObjectByID(biome.biome));
       game.township.setBuildBiome(game.township.biomes.getObjectByID(biome.biome));
       game.township.buildBuilding(game.township.buildings.getObjectByID(building.id));
     },
     upgrade(building, biome) {
+      game.township.setBuildQty(1);
+      game.township.upgradeQty = 1;
+      townshipUI.updateAllBuildingUpgradeCosts();
+      townshipUI.updateUpgradeDropdowns();
       game.township.setTownBiome(game.township.biomes.getObjectByID(biome.biome));
       game.township.setBuildBiome(game.township.biomes.getObjectByID(biome.biome));
-      game.township.buildBuilding(game.township.buildings.getObjectByID(building.id));
+      game.township.buildBuilding(game.township.buildings.getObjectByID(building.upgradeToId));
     },
     get filteredBuildings() {
       const filter = this.currentFilter;

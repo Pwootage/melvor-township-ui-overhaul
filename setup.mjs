@@ -19,10 +19,14 @@ export async function setup(ctx) {
     ctx.patch(Township, 'catchupTicks').after(function (result) {
       if (townshipUI.currentPage == TABLE_PAGE) {
         table.update();
-        // updateTownStatus();
-        // updateResourceNodes();
       }
       return result;
+    });
+
+    ctx.patch(Township, 'buildBuilding').after(function (result) {
+      if (townshipUI.currentPage == TABLE_PAGE) {
+        table.update();
+      }
     });
 
     ctx.patch(TownshipUI, 'getPageButton').after(function (result, page) {

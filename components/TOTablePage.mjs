@@ -32,6 +32,12 @@ export function TOTablePage(params) {
   return {
     $template: `#tso-table-page`,
     update() {
+      // this is a really stupid hack but is the only way I could figure out how to get the ui to actually update
+      // I have no idea why the UI isn't updating, it's entirely new objects every single time...
+      this.hideAll = true;
+      this.$nextTick(() => {
+        this.hideAll = false;
+      });
       this.resources = game.township.resourceDisplayOrder.map(it => {
         return {
           name: it.name,
@@ -133,6 +139,7 @@ export function TOTablePage(params) {
 
         return {
           name: building.name,
+          id: building.id,
           media: building.media,
           tier: building.tier,
           reqsMet,
@@ -149,8 +156,19 @@ export function TOTablePage(params) {
         };
       });
     },
+    build(building, biome) {
+      game.township.setTownBiome(game.township.biomes.getObjectByID(biome.biome));
+      game.township.setBuildBiome(game.township.biomes.getObjectByID(biome.biome));
+      game.township.buildBuilding(game.township.buildings.getObjectByID(building.id));
+    },
+    upgrade(building, biome) {
+      game.township.setTownBiome(game.township.biomes.getObjectByID(biome.biome));
+      game.township.setBuildBiome(game.township.biomes.getObjectByID(biome.biome));
+      game.township.buildBuilding(game.township.buildings.getObjectByID(building.id));
+    },
     resources: [],
     buildings: [],
+    hideAll: false,
     showLocked: false,
     showUnbuildable: false,
     showOnlyUpgradable: false,
@@ -182,7 +200,7 @@ export function TOResourceRow({ resource }) {
 }
 window.TOResourceRow = TOResourceRow;
 
-export function TOBuildingRow({ building }) {
+export function TOBuildingRow(building) {
   return {
     $template: `#tso-building-row`,
     building,

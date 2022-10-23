@@ -45,11 +45,19 @@ export function TOTablePage(params) {
         const biomes = [];
         for (let biome of building.biomes) {
           const resources = [];
+          const upgradeProvides = building.upgradesTo?.provides;
+          const upgradeProvidesResources = upgradeProvides?.resources ?? new Map();
           for (let [resource, amount] of building.provides.resources.entries()) {
+            const upgradeProvidesResource = upgradeProvidesResources.get(resource);
+            let upgradeAmount;
+            if (upgradeProvidesResource) {
+              upgradeAmount = game.township.getSingleResourceGainAmountInBiome(resource, building.upgradesTo, biome)
+            }
             resources.push({
               name: resource.name,
               media: resource.media,
               amount: game.township.getSingleResourceGainAmountInBiome(resource, building, biome),
+              upgradeAmount,
               workers: building.provides.workers.get(resource),
             });
           }
@@ -58,6 +66,7 @@ export function TOTablePage(params) {
           const purchased = biome.amountPurchased;
           const total = biome.totalInMap;
           const canBePurchased = total - purchased;
+
           biomes.push({
             biome: biome.id,
             name: biome.name,
@@ -66,41 +75,90 @@ export function TOTablePage(params) {
             canBePurchased,
             media: BIOME_ICONS[biome.id],
             education: building.provides.education,
+            upgradeEducation: upgradeProvides?.education,
             happiness: building.provides.happiness,
+            upgradeHappiness: upgradeProvides?.happiness,
             population: building.provides.population,
+            upgradePopulation: upgradeProvides?.population,
             storage: building.provides.storage,
+            upgradeStorage: upgradeProvides?.storage,
             worship: building.provides.worship,
-            resources
+            upgradeWorship: upgradeProvides?.worship,
+            resources,
           });
         }
 
         const costs = [];
-        for (let {resource, quantity} of building.costs) {
+        for (let { resource, quantity } of building.costs) {
           costs.push({
             name: resource.name,
             media: resource.media,
             quantity,
+            met: resource.amount >= quantity,
           });
         }
+
+        const upgradeCosts = [];
+        for (let { resource, quantity } of building.upgradesTo?.costs ?? []) {
+          upgradeCosts.push({
+            name: resource.name,
+            media: resource.media,
+            quantity,
+            met: resource.amount >= quantity,
+          });
+        }
+
+
+        const townshipLevel = game.township.level;
+        const townshipPop = game.township.citizens.length;
+
+        const levelRequired = game.township.populationForTier[building.tier].level;
+        const popRequired = game.township.populationForTier[building.tier].population;
+        const resourcesMet = building.costs.every(({ resource, quantity }) => resource.amount >= quantity);
+
+        const reqsMet = (townshipLevel >= levelRequired) && (townshipPop >= popRequired) && resourcesMet;
+
+        const buildable = !building.upgradesFrom;
+        const upgradable = !!building.upgradesTo;
+        let upgradeReqsMet = false;
+        if (upgradable) {
+          const upgradeLevelRequired = game.township.populationForTier[building.upgradesTo.tier].level;
+          const upgradePopRequired = game.township.populationForTier[building.upgradesTo.tier].population;
+          const upgradeResourcesMet = building.upgradesTo.costs.every(({ resource, quantity }) => resource.amount >= quantity);
+          upgradeReqsMet = (townshipLevel >= upgradeLevelRequired) && (townshipPop >= upgradePopRequired) && upgradeResourcesMet;
+        }
+
+        const anyBiomeBuildable = (buildable && biomes.some(biome => biome.canBePurchased > 0));
+        const anyBiomeUpgradable = (upgradable && biomes.some(biome => biome.count > 0));
 
         return {
           name: building.name,
           media: building.media,
           tier: building.tier,
-          buildable: !building.upgradesFrom,
-          upgradable: !!building.upgradesTo,
+          reqsMet,
+          buildable,
+          upgradable,
+          upgradeReqsMet,
+          anyBiomeBuildable,
+          anyBiomeUpgradable,
+          levelRequired,
+          popRequired,
           costs,
+          upgradeCosts,
           biomes
         };
       });
     },
     resources: [],
     buildings: [],
+    showLocked: false,
+    showUnbuildable: false,
+    showOnlyUpgradable: false,
   };
 }
 window.TOTablePage = TOTablePage;
 
-export function TOResourceRow({resource}) {
+export function TOResourceRow({ resource }) {
   return {
     $template: `#tso-resource-row`,
     resource,
@@ -124,7 +182,7 @@ export function TOResourceRow({resource}) {
 }
 window.TOResourceRow = TOResourceRow;
 
-export function TOBuildingRow({building}) {
+export function TOBuildingRow({ building }) {
   return {
     $template: `#tso-building-row`,
     building,

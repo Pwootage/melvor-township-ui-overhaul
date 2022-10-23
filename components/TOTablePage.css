@@ -44,7 +44,24 @@
   vertical-align: center;
   background: #232a35;
   border-radius: .5rem;
+  border: none;
   color: #f5f5f5;
+}
+
+.tso-build-icon {
+  color: #e5ae67;
+}
+
+.tso-upgrade-icon {
+  color: #30c78d;
+}
+
+.tso-build-btn[disabled] .tso-upgrade-icon[reqsmet="false"], .tso-build-btn[disabled] .tso-build-icon[reqsmet="false"] {
+  color: #e56767;
+}
+
+.tso-build-btn[disabled] .tso-build-icon, .tso-build-btn[disabled] .tso-upgrade-icon {
+  color: #a5a5a5;
 }
 
 /* idk why this isn't avaiable, it's in fa5-free */

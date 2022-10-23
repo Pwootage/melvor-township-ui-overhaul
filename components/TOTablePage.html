@@ -5,6 +5,7 @@
         <div class="border-botsom border-crafting text-warning w-100 pb-1 mb-2 font-size-base">Filter</div>
 
         <div :class="{'selected': currentFilter == filter}" @click="setFilter(filter)" v-for="filter in filters" v-scope="TOFilterRow({filter})"></div>
+        <div :class="{'selected': currentFilter == filter}" @click="setFilter(filter)" v-for="filter in resourceFilters" v-scope="TOFilterRow({filter})"></div>
 
       </div>
       <div class="col-xl-10 col-lg-10 col-md-12 pl-2">
@@ -14,7 +15,7 @@
           <label v-if="showUnbuildable"><input type="checkbox" v-model="showLocked" class="ml-2" /> Show Locked</label>
         </div>
         <div class="tso-building-table column" v-if="!hideAll">
-          <div v-for="building in buildings" :key="building.id" v-scope="TOBuildingRow(building)"></div>
+          <div v-for="building in filteredBuildings" :key="building.id" v-scope="TOBuildingRow(building)"></div>
         </div>
       </div>
     </div>
@@ -23,6 +24,10 @@
 
 <template id="tso-filter-row">
   <div class="tso-filter tso-row tso-column" @vue:mounted="mounted($el)" @vue:unmounted="unmounted">
+    <div v-if="clear">
+      <i class="fa fa-close"></i>
+      <small class="font-w600">Clear filter</small>
+    </div>
     <div v-if="population">
       <i class="fa fa-house-user"></i>
       <small class="font-w600">{{numberWithCommas(population.current)}} / {{numberWithCommas(population.max)}}</small>

@@ -38,22 +38,23 @@ export function TOTablePage(params) {
       this.$nextTick(() => {
         this.hideAll = false;
       });
-      this.filters = [
-        { population: { current: game.township.currentPopulation, max: game.township.populationLimit } },
-        { happiness: { current: game.township.townData.happiness, max: game.township.maxHappiness } },
-        { storage: { current: game.township.getUsedStorage().toFixed(0), max: game.township.getMaxStorage() } },
-        { education: { current: game.township.townData.education, max: game.township.maxEducation } },
-        { worship: { current: game.township.townData.worshipCount, max: game.township.MAX_WORSHIP } },
-      ];
-      for (const resource of game.township.resourceDisplayOrder) {
-        this.filters.push({
-          resource: {
-            name: resource.name,
-            media: resource.media,
-            amount: resource.amount,
-            netRate: game.township.getNetResourceRate(resource),
-          }
-        });
+      if (this.resourceFilters.length == 0) {
+        for (const resource of game.township.resourceDisplayOrder) {
+          this.filters.push({
+            resource: {
+              id: resource.id,
+              name: resource.name,
+              media: resource.media,
+              amount: resource.amount,
+              netRate: game.township.getNetResourceRate(resource),
+            }
+          });
+        }
+      } else {
+        for (const filter of this.resourceFilters) {
+          filter.resource.amount = game.township.resources.getObjectByID(filter.resource.id).amount;
+          filter.resource.netRate = game.township.getNetResourceRate(filter.resource);
+        }
       }
 
       this.buildings = game.township.buildingDisplayOrder.map(building => {
@@ -69,6 +70,7 @@ export function TOTablePage(params) {
               upgradeAmount = game.township.getSingleResourceGainAmountInBiome(resource, building.upgradesTo, biome)
             }
             resources.push({
+              id: resource.id,
               name: resource.name,
               media: resource.media,
               amount: game.township.getSingleResourceGainAmountInBiome(resource, building, biome),
@@ -171,6 +173,9 @@ export function TOTablePage(params) {
       } else {
         this.currentFilter = filter;
       }
+      if (filter.clear) {
+        this.currentFilter = null;
+      }
     },
     build(building, biome) {
       game.township.setTownBiome(game.township.biomes.getObjectByID(biome.biome));
@@ -182,8 +187,28 @@ export function TOTablePage(params) {
       game.township.setBuildBiome(game.township.biomes.getObjectByID(biome.biome));
       game.township.buildBuilding(game.township.buildings.getObjectByID(building.id));
     },
+    get filteredBuildings() {
+      const filter = this.currentFilter;
+      if (!filter || filter.clear) return this.buildings;
+      if (filter.population) return this.buildings.filter(building => building.biomes.some(biome => biome.population > 0));
+      if (filter.education) return this.buildings.filter(building => building.biomes.some(biome => biome.education > 0));
+      if (filter.happiness) return this.buildings.filter(building => building.biomes.some(biome => biome.happiness > 0));
+      if (filter.worship) return this.buildings.filter(building => building.biomes.some(biome => biome.worship > 0));
+      if (filter.storage) return this.buildings.filter(building => building.biomes.some(biome => biome.storage > 0));
+      if (filter.resource) return this.buildings.filter(building => building.biomes.some(biome => biome.resources.some(resource => resource.id == filter.resource.id && resource.amount > 0)));
+
+      return this.buildings
+    },
     currentFilter: null,
-    filters: [],
+    filters: [
+      { clear: true },
+      { population: { current: game.township.currentPopulation, max: game.township.populationLimit } },
+      { happiness: { current: game.township.townData.happiness, max: game.township.maxHappiness } },
+      { storage: { current: game.township.getUsedStorage().toFixed(0), max: game.township.getMaxStorage() } },
+      { education: { current: game.township.townData.education, max: game.township.maxEducation } },
+      { worship: { current: game.township.townData.worshipCount, max: game.township.MAX_WORSHIP } },
+    ],
+    resourceFilters: [],
     buildings: [],
     hideAll: false,
     showLocked: false,
@@ -196,6 +221,7 @@ window.TOTablePage = TOTablePage;
 export function TOFilterRow({ filter }) {
   return {
     $template: `#tso-filter-row`,
+    clear: filter.clear,
     resource: filter.resource,
     population: filter.population,
     happiness: filter.happiness,

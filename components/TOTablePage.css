@@ -39,6 +39,7 @@
   width: 24px;
   height: 24px;
   margin: 4px;
+  text-align: center;
 }
 
 .tso-filter i::before {
@@ -89,6 +90,10 @@
 /* idk why this isn't avaiable, it's in fa5-free */
 .fa-house::before {
   content: "\f015";
+}
+
+.fa-close::before {
+  content: '\f00d';
 }
 
 .tso-biome {

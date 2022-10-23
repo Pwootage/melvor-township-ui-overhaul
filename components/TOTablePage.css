@@ -23,6 +23,28 @@
   justify-content: stretch;
 }
 
+.tso-filter {
+  border-radius: .5rem;
+}
+
+.selected .tso-filter {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.tso-filter:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.tso-filter i, .tso-filter img {
+  width: 24px;
+  height: 24px;
+  margin: 4px;
+}
+
+.tso-filter i::before {
+  font-size: 18px;
+}
+
 .tso-building {
   border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }

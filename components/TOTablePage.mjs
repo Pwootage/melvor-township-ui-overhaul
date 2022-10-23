@@ -38,14 +38,23 @@ export function TOTablePage(params) {
       this.$nextTick(() => {
         this.hideAll = false;
       });
-      this.resources = game.township.resourceDisplayOrder.map(it => {
-        return {
-          name: it.name,
-          media: it.media,
-          amount: it.amount,
-          netRate: game.township.getNetResourceRate(it),
-        };
-      });
+      this.filters = [
+        { population: { current: game.township.currentPopulation, max: game.township.populationLimit } },
+        { happiness: { current: game.township.townData.happiness, max: game.township.maxHappiness } },
+        { storage: { current: game.township.getUsedStorage().toFixed(0), max: game.township.getMaxStorage() } },
+        { education: { current: game.township.townData.education, max: game.township.maxEducation } },
+        { worship: { current: game.township.townData.worshipCount, max: game.township.MAX_WORSHIP } },
+      ];
+      for (const resource of game.township.resourceDisplayOrder) {
+        this.filters.push({
+          resource: {
+            name: resource.name,
+            media: resource.media,
+            amount: resource.amount,
+            netRate: game.township.getNetResourceRate(resource),
+          }
+        });
+      }
 
       this.buildings = game.township.buildingDisplayOrder.map(building => {
         const biomes = [];
@@ -156,6 +165,13 @@ export function TOTablePage(params) {
         };
       });
     },
+    setFilter(filter) {
+      if (this.currentFilter == filter) {
+        this.currentFilter = null;
+      } else {
+        this.currentFilter = filter;
+      }
+    },
     build(building, biome) {
       game.township.setTownBiome(game.township.biomes.getObjectByID(biome.biome));
       game.township.setBuildBiome(game.township.biomes.getObjectByID(biome.biome));
@@ -166,7 +182,8 @@ export function TOTablePage(params) {
       game.township.setBuildBiome(game.township.biomes.getObjectByID(biome.biome));
       game.township.buildBuilding(game.township.buildings.getObjectByID(building.id));
     },
-    resources: [],
+    currentFilter: null,
+    filters: [],
     buildings: [],
     hideAll: false,
     showLocked: false,
@@ -176,29 +193,25 @@ export function TOTablePage(params) {
 }
 window.TOTablePage = TOTablePage;
 
-export function TOResourceRow({ resource }) {
+export function TOFilterRow({ filter }) {
   return {
-    $template: `#tso-resource-row`,
-    resource,
+    $template: `#tso-filter-row`,
+    resource: filter.resource,
+    population: filter.population,
+    happiness: filter.happiness,
+    storage: filter.storage,
+    education: filter.education,
+    worship: filter.worship,
     update() {
-      this.tooltip.setContent(this.resource?.name);
     },
     mounted($el) {
-      this.tooltip = tippy($el.querySelector('.skill-icon-xs'), {
-        placement: 'bottom',
-        allowHTML: true,
-        interactive: false,
-        animation: false,
-      });
       this.update();
     },
     unmounted() {
-      this.tooltip?.destroy();
-      delete this.tooltip;
     },
   };
 }
-window.TOResourceRow = TOResourceRow;
+window.TOFilterRow = TOFilterRow;
 
 export function TOBuildingRow(building) {
   return {

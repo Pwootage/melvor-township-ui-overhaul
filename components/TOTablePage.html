@@ -4,7 +4,7 @@
       <div class="col-xl-2 col-lg-4 col-md-12 pr-2 font-size-sm">
         <div class="border-botsom border-crafting text-warning w-100 pb-1 mb-2 font-size-base">Filter</div>
 
-        <div v-for="resource in resources" v-scope="TOResourceRow({resource})"></div>
+        <div :class="{'selected': currentFilter == filter}" @click="setFilter(filter)" v-for="filter in filters" v-scope="TOFilterRow({filter})"></div>
 
       </div>
       <div class="col-xl-10 col-lg-10 col-md-12 pl-2">
@@ -21,20 +21,34 @@
   </div>
 </template>
 
-<template id="tso-resource-row">
-  <div class="tso-resource media d-flex align-items-center" @vue:mounted="mounted($el)" @vue:unmounted="unmounted">
-    <div class="ml-1 mr-1">
-      <img class="skill-icon-xs mr-1" :src=resource.media :alt=resource.name>
+<template id="tso-filter-row">
+  <div class="tso-filter tso-row tso-column" @vue:mounted="mounted($el)" @vue:unmounted="unmounted">
+    <div v-if="population">
+      <i class="fa fa-house-user"></i>
+      <small class="font-w600">{{numberWithCommas(population.current)}} / {{numberWithCommas(population.max)}}</small>
     </div>
-    <div class="media-body">
-      <div>
-        <span class="mr-1">
-          <small class="font-w600">{{numberWithCommas(Math.floor(resource.amount))}}</small>
-          <small><span :class="{'text-danger': resource.netRate < 0, 'text-success': resource.netRate > 0 }">
-              {{resource.netRate >= 0 ? '+' : ''}}{{numberWithCommas(resource.netRate.toFixed(2))}} /t
-            </span></small>
-        </span>
-      </div>
+    <div v-if="happiness">
+      <i class="fa fa-smile"></i>
+      <small class="font-w600">{{numberWithCommas(happiness.current)}} / {{numberWithCommas(happiness.max)}}</small>
+    </div>
+    <div v-if="storage">
+      <i class="fa fa-box-open"></i>
+      <small class="font-w600">{{numberWithCommas(storage.current)}} / {{numberWithCommas(storage.max)}}</small>
+    </div>
+    <div v-if="education">
+      <i class="fa fa-book-open"></i>
+      <small class="font-w600">{{numberWithCommas(education.current)}} / {{numberWithCommas(education.max)}}</small>
+    </div>
+    <div v-if="worship">
+      <i class="fa fa-church"></i>
+      <small class="font-w600">{{numberWithCommas(worship.current)}} / {{numberWithCommas(worship.max)}}</small>
+    </div>
+    <div v-if="resource">
+      <img :src=resource.media :alt=resource.name>
+      <small class="font-w600">{{numberWithCommas(Math.floor(resource.amount))}}</small>
+      <small><span :class="{'text-danger': resource.netRate < 0, 'text-success': resource.netRate > 0 }">
+          {{resource.netRate >= 0 ? '+' : ''}}{{numberWithCommas(resource.netRate.toFixed(2))}} /t
+        </span></small>
     </div>
 </template>
 
@@ -138,11 +152,11 @@
         </div>
         <div class="tso-row tso-space-between tso-build-col">
           <button class="tso-build-btn tso-row tso-center" v-if="building.buildable && !showOnlyUpgradable"
-            :disabled="!building.reqsMet || biome.freeCount <= 0" @click="build(building, biome)"><i class="fa fa-hammer tso-build-icon"
-              :reqsmet="building.reqsMet"></i></button>
+            :disabled="!building.reqsMet || biome.freeCount <= 0" @click="build(building, biome)"><i
+              class="fa fa-hammer tso-build-icon" :reqsmet="building.reqsMet"></i></button>
           <button class="tso-build-btn tso-row tso-center" v-if="building.upgradable"
-            :disabled="!building.upgradeReqsMet || biome.count <= 0" @click="upgrade(building, biome)"><i class="fa fa-arrow-up tso-upgrade-icon"
-              :reqsmet="building.upgradeReqsMet"></i></button>
+            :disabled="!building.upgradeReqsMet || biome.count <= 0" @click="upgrade(building, biome)"><i
+              class="fa fa-arrow-up tso-upgrade-icon" :reqsmet="building.upgradeReqsMet"></i></button>
         </div>
 </template>
 </div>

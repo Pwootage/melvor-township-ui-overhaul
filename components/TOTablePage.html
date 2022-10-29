@@ -4,8 +4,10 @@
       <div class="col-xl-2 col-lg-4 col-md-12 pr-2 font-size-sm">
         <div class="border-botsom border-crafting text-warning w-100 pb-1 mb-2 font-size-base">Filter</div>
 
-        <div :class="{'selected': currentFilter == filter}" @click="setFilter(filter)" v-for="filter in filters" v-scope="TOFilterRow({filter})"></div>
-        <div :class="{'selected': currentFilter == filter}" @click="setFilter(filter)" v-for="filter in resourceFilters" v-scope="TOFilterRow({filter})"></div>
+        <div :class="{'selected': currentFilter == filter}" @click="setFilter(filter)" v-for="filter in filters"
+          v-scope="TOFilterRow({filter})"></div>
+        <div :class="{'selected': currentFilter == filter}" @click="setFilter(filter)" v-for="filter in resourceFilters"
+          v-scope="TOFilterRow({filter})"></div>
 
       </div>
       <div class="col-xl-10 col-lg-10 col-md-12 pl-2">
@@ -82,88 +84,99 @@
       </div>
     </div>
     <div v-for="biome in building.biomes">
-      <div class="tso-column tso-biome"
-        v-if="(showUnbuildable || (building.buildable && biome.freeCount > 0) || (building.upgradable && biome.count > 0)) && (!showOnlyUpgradable || (building.reqsMet && biome.count > 0))">
-        <div><img class="tso-biome-icon" :src=biome.media /> {{biome.name}}</div>
-        <div class="tso-row">
-          <small>
-            <i class="fa fa-house"></i> {{biome.count}}
-            <i class="fa fa-hammer"></i> {{biome.freeCount}}
-            <i class="fa fa-money-bill"></i> {{ biome.canBePurchased}}
-          </small>
-        </div>
-        <div class="tso-column">
-          <div v-if="biome.education"><small>
-              <i class="fa fa-book-open"></i>
-              <span
-                :class="{'text-danger': biome.education < 0, 'text-success': biome.education > 0 }">{{plusIfPositive(biome.education)}}{{biome.education}}</span>
-              <span v-if="building.upgradable">
-                <i class="fa fa-arrow-right"></i>
-                <span
-                  :class="{'text-danger': biome.upgradeEducation < 0, 'text-success': biome.upgradeEducation > 0 }">{{plusIfPositive(biome.upgradeEducation)}}{{biome.upgradeEducation}}</span>
-              </span>
-            </small></div>
-          <div v-if="biome.happiness"><small>
-              <i class="fa fa-smile"></i>
-              <span
-                :class="{'text-danger': biome.happiness < 0, 'text-success': biome.happiness > 0 }">{{plusIfPositive(biome.happiness)}}{{biome.happiness}}</span>
-              <span v-if="building.upgradable">
-                <i class="fa fa-arrow-right"></i>
-                <span
-                  :class="{'text-danger': biome.upgradeHappiness < 0, 'text-success': biome.upgradeHappiness > 0 }">{{plusIfPositive(biome.upgradeHappiness)}}{{biome.upgradeHappiness}}</span>
-              </span>
-            </small></div>
-          <div v-if="biome.population"><small>
-              <i class="fa fa-house-user"></i>
-              <span
-                :class="{'text-danger': biome.population < 0, 'text-success': biome.population > 0 }">{{plusIfPositive(biome.population)}}{{biome.population}}</span>
-              <span v-if="building.upgradable">
-                <i class="fa fa-arrow-right"></i>
-                <span
-                  :class="{'text-danger': biome.upgradePopulation < 0, 'text-success': biome.upgradePopulation > 0 }">{{plusIfPositive(biome.upgradePopulation)}}{{biome.upgradePopulation}}</span>
-              </span>
-            </small></div>
-          <div v-if="biome.storage"><small>
-              <i class="fa fa-box-open"></i>
-              <span
-                :class="{'text-danger': biome.storage < 0, 'text-success': biome.storage > 0 }">{{plusIfPositive(biome.storage)}}{{numberWithCommas(biome.storage)}}</span>
-              <span v-if="building.upgradable">
-                <i class="fa fa-arrow-right"></i>
-                <span
-                  :class="{'text-danger': biome.upgradeStorage < 0, 'text-success': biome.upgradeStorage > 0 }">{{plusIfPositive(biome.upgradeStorage)}}{{numberWithCommas(biome.upgradeStorage)}}</span>
-              </span>
-            </small></div>
-          <div v-if="biome.worship"><small>
-              <i class="fa fa-church"></i>
-              <span
-                :class="{'text-danger': biome.worship < 0, 'text-success': biome.worship > 0 }">{{plusIfPositive(biome.worship)}}{{biome.worship}}</span>
-              <span v-if="building.upgradable">
-                <i class="fa fa-arrow-right"></i>
-                <span
-                  :class="{'text-danger': biome.upgradeWorship < 0, 'text-success': biome.upgradeWorship > 0 }">{{plusIfPositive(biome.upgradeWorship)}}{{biome.upgradeWorship}}</span>
-              </span>
-            </small></div>
-
-          <div class="tso-biome-resource tso-row" v-for="resource in biome.resources">
-            <img :src=resource.media />
-            <small
-              :class="{'text-danger': resource.amount < 0, 'text-success': resource.amount > 0 }">{{plusIfPositive(resource.amount)}}{{resource.amount.toFixed(2)}}</small>
-            <small v-if="building.upgradable">
-              <i class="fa fa-arrow-right"></i>
-              <span
-                :class="{'text-danger': resource.upgradeAmount < 0, 'text-success': resource.upgradeAmount > 0 }">{{plusIfPositive(resource.upgradeAmount)}}{{resource.upgradeAmount.toFixed(2)}}</span>
-            </small>
-          </div>
-        </div>
-        <div class="tso-row tso-space-between tso-build-col">
-          <button class="tso-build-btn tso-row tso-center" v-if="building.buildable && !showOnlyUpgradable"
-            :disabled="!building.reqsMet || !building.resourcesMet || biome.freeCount <= 0" @click="build(building, biome)"><i
-              class="fa fa-hammer tso-build-icon" :reqsmet="building.reqsMet"></i></button>
-          <button class="tso-build-btn tso-row tso-center" v-if="building.upgradable"
-            :disabled="!building.upgradeReqsMet || !building.upgradeResourcesMet || biome.count <= 0" @click="upgrade(building, biome)"><i
-              class="fa fa-arrow-up tso-upgrade-icon" :reqsmet="building.upgradeReqsMet"></i></button>
-        </div>
+      <div v-scope="TOBuildingBiome({building, biome})">
+      </div>
+    </div>
+  </div>
 </template>
-</div>
-</div>
+
+<template id="tso-building-biome">
+  <div class="tso-column tso-biome" @vue:mounted="mounted($el)" @vue:unmounted="unmounted"
+    v-if="(showUnbuildable || (building.buildable && biome.freeCount > 0) || (building.upgradable && biome.count > 0)) && (!showOnlyUpgradable || (building.reqsMet && biome.count > 0))">
+    <div><img class="tso-biome-icon" :src=biome.media /> {{biome.name}}</div>
+    <div class="tso-row">
+      <small>
+        <i class="fa fa-house"></i> {{biome.count}}
+        <i class="fa fa-hammer"></i> {{biome.freeCount}}
+        <i class="fa fa-money-bill"></i> {{ biome.canBePurchased}}
+      </small>
+    </div>
+    <div class="tso-column">
+      <div v-if="biome.education"><small>
+          <i class="fa fa-book-open"></i>
+          <span
+            :class="{'text-danger': biome.education < 0, 'text-success': biome.education > 0 }">{{plusIfPositive(biome.education)}}{{biome.education}}</span>
+          <span v-if="building.upgradable">
+            <i class="fa fa-arrow-right"></i>
+            <span
+              :class="{'text-danger': biome.upgradeEducation < 0, 'text-success': biome.upgradeEducation > 0 }">{{plusIfPositive(biome.upgradeEducation)}}{{biome.upgradeEducation}}</span>
+          </span>
+        </small></div>
+      <div v-if="biome.happiness"><small>
+          <i class="fa fa-smile"></i>
+          <span
+            :class="{'text-danger': biome.happiness < 0, 'text-success': biome.happiness > 0 }">{{plusIfPositive(biome.happiness)}}{{biome.happiness}}</span>
+          <span v-if="building.upgradable">
+            <i class="fa fa-arrow-right"></i>
+            <span
+              :class="{'text-danger': biome.upgradeHappiness < 0, 'text-success': biome.upgradeHappiness > 0 }">{{plusIfPositive(biome.upgradeHappiness)}}{{biome.upgradeHappiness}}</span>
+          </span>
+        </small></div>
+      <div v-if="biome.population"><small>
+          <i class="fa fa-house-user"></i>
+          <span
+            :class="{'text-danger': biome.population < 0, 'text-success': biome.population > 0 }">{{plusIfPositive(biome.population)}}{{biome.population}}</span>
+          <span v-if="building.upgradable">
+            <i class="fa fa-arrow-right"></i>
+            <span
+              :class="{'text-danger': biome.upgradePopulation < 0, 'text-success': biome.upgradePopulation > 0 }">{{plusIfPositive(biome.upgradePopulation)}}{{biome.upgradePopulation}}</span>
+          </span>
+        </small></div>
+      <div v-if="biome.storage"><small>
+          <i class="fa fa-box-open"></i>
+          <span
+            :class="{'text-danger': biome.storage < 0, 'text-success': biome.storage > 0 }">{{plusIfPositive(biome.storage)}}{{numberWithCommas(biome.storage)}}</span>
+          <span v-if="building.upgradable">
+            <i class="fa fa-arrow-right"></i>
+            <span
+              :class="{'text-danger': biome.upgradeStorage < 0, 'text-success': biome.upgradeStorage > 0 }">{{plusIfPositive(biome.upgradeStorage)}}{{numberWithCommas(biome.upgradeStorage)}}</span>
+          </span>
+        </small></div>
+      <div v-if="biome.worship"><small>
+          <i class="fa fa-church"></i>
+          <span
+            :class="{'text-danger': biome.worship < 0, 'text-success': biome.worship > 0 }">{{plusIfPositive(biome.worship)}}{{biome.worship}}</span>
+          <span v-if="building.upgradable">
+            <i class="fa fa-arrow-right"></i>
+            <span
+              :class="{'text-danger': biome.upgradeWorship < 0, 'text-success': biome.upgradeWorship > 0 }">{{plusIfPositive(biome.upgradeWorship)}}{{biome.upgradeWorship}}</span>
+          </span>
+        </small></div>
+
+      <div class="tso-biome-resource tso-row" v-for="resource in biome.resources">
+        <img :src=resource.media />
+        <small
+          :class="{'text-danger': resource.amount < 0, 'text-success': resource.amount > 0 }">{{plusIfPositive(resource.amount)}}{{resource.amount.toFixed(2)}}</small>
+        <small v-if="building.upgradable">
+          <i class="fa fa-arrow-right"></i>
+          <span
+            :class="{'text-danger': resource.upgradeAmount < 0, 'text-success': resource.upgradeAmount > 0 }">{{plusIfPositive(resource.upgradeAmount)}}{{resource.upgradeAmount.toFixed(2)}}</span>
+        </small>
+      </div>
+    </div>
+    <div class="tso-row tso-space-between tso-build-col">
+      <div class="tso-build" v-if="building.buildable && !showOnlyUpgradable">
+        <button class="tso-build-btn tso-row tso-center"
+          :disabled="!building.reqsMet || !building.resourcesMet || biome.freeCount <= 0"
+          @click="build(building, biome)"><i class="fa fa-hammer tso-build-icon"
+            :reqsmet="building.reqsMet"></i></button>
+      </div>
+      <div class="tso-upgrade" v-if="building.upgradable">
+        <button class="tso-build-btn tso-row tso-center"
+          :disabled="!building.upgradeReqsMet || !building.upgradeResourcesMet || biome.count <= 0"
+          @click="upgrade(building, biome)"><i class="fa fa-arrow-up tso-upgrade-icon"
+            :reqsmet="building.upgradeReqsMet"></i></button>
+      </div>
+    </div>
+  </div>
 </template>

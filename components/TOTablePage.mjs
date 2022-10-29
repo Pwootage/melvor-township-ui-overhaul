@@ -107,21 +107,25 @@ export function TOTablePage(params) {
 
         const costs = [];
         for (let { resource, quantity } of building.costs) {
+          const actualAmount = game.township.modifyBuildingResourceCost(quantity);
           costs.push({
+            id: resource.id,
             name: resource.name,
             media: resource.media,
-            quantity,
-            met: resource.amount >= quantity,
+            quantity: actualAmount,
+            met: resource.amount >= actualAmount,
           });
         }
 
         const upgradeCosts = [];
         for (let { resource, quantity } of building.upgradesTo?.costs ?? []) {
+          const actualAmount = game.township.modifyBuildingResourceCost(quantity);
           upgradeCosts.push({
+            id: resource.id,
             name: resource.name,
             media: resource.media,
-            quantity,
-            met: resource.amount >= quantity,
+            quantity: actualAmount,
+            met: resource.amount >= actualAmount,
           });
         }
 
@@ -131,7 +135,7 @@ export function TOTablePage(params) {
 
         const levelRequired = game.township.populationForTier[building.tier].level;
         const popRequired = game.township.populationForTier[building.tier].population;
-        const resourcesMet = building.costs.every(({ resource, quantity }) => resource.amount >= quantity);
+        const resourcesMet = costs.every(({ met }) => met);
 
         const reqsMet = (townshipLevel >= levelRequired) && (townshipPop >= popRequired);
 
@@ -139,11 +143,13 @@ export function TOTablePage(params) {
         const upgradable = !!building.upgradesTo;
         let upgradeReqsMet = false;
         let upgradeResourcesMet = false;
+        let upgradeName;
         if (upgradable) {
           const upgradeLevelRequired = game.township.populationForTier[building.upgradesTo.tier].level;
           const upgradePopRequired = game.township.populationForTier[building.upgradesTo.tier].population;
-          upgradeResourcesMet = building.upgradesTo.costs.every(({ resource, quantity }) => resource.amount >= quantity);
+          upgradeResourcesMet = upgradeCosts.every(({ met }) => met);
           upgradeReqsMet = (townshipLevel >= upgradeLevelRequired) && (townshipPop >= upgradePopRequired);
+          upgradeName = building.upgradesTo.name;
         }
 
         const anyBiomeBuildable = (buildable && biomes.some(biome => biome.canBePurchased > 0));
@@ -161,6 +167,7 @@ export function TOTablePage(params) {
           upgradeToId: building.upgradesTo?.id,
           upgradeReqsMet,
           upgradeResourcesMet,
+          upgradeName,
           anyBiomeBuildable,
           anyBiomeUpgradable,
           levelRequired,
@@ -256,21 +263,104 @@ export function TOBuildingRow(building) {
     $template: `#tso-building-row`,
     building,
     update() {
-      // this.tooltip.setContent(this.building.name);
     },
     mounted($el) {
-      // this.tooltip = tippy($el.querySelector('.skill-icon-xs'), {
-      //   placement: 'bottom',
-      //   allowHTML: true,
-      //   interactive: false,
-      //   animation: false,
-      // });
+
       this.update();
     },
     unmounted() {
-      this.tooltip?.destroy();
-      delete this.tooltip;
+      this.buildTooltip?.destroy();
+      this.buildTooltip = null;
+      this.upgradeTooltip?.destroy();
+      this.upgradeTooltip = null;
     },
   };
 }
 window.TOBuildingRow = TOBuildingRow;
+
+export function TOBuildingBiome({ building, biome }) {
+  return {
+    $template: `#tso-building-biome`,
+    building,
+    biome,
+    buildTooltip: null,
+    upgradeTooltip: null,
+    update() {
+      if (this.buildTooltip) {
+        const tooltip = []
+        if (!building.reqsMet) {
+          tooltip.push(`Requires Township Level ${building.levelRequired} and ${building.popRequired} Population`);
+        }
+        if (!building.resourcesMet) {
+          let costTooltip = '<div class="tso-row">Missing Resources: ';
+          for (const cost of building.costs) {
+            costTooltip += `<div class="tso-biome-resource tso-row">
+              <img src="${cost.media}" />
+              <small>${cost.quantity.toFixed(0)}</small>
+            </div>`;
+          }
+          costTooltip += '</div>';
+          tooltip.push(costTooltip);
+        }
+        if (biome.freeCount <= 0) {
+          tooltip.push(`No free spots available in ${biome.name}`);
+        }
+        if (tooltip.length == 0) {
+          tooltip.push(`Build 1x ${building.name}`);
+        }
+        this.buildTooltip.setContent(tooltip.join('\n'));
+      }
+      if (this.upgradeTooltip) {
+        const tooltip = []
+        if (!building.upgradeReqsMet) {
+          tooltip.push(`Requires Township Level ${building.levelRequired} and ${building.popRequired} Population`);
+        }
+        if (!building.upgradeResourcesMet) {
+          let costTooltip = '<div class="tso-row">Missing Resources: ';
+          for (const cost of building.upgradeCosts) {
+            const currentAmount = game.township.resources.getObjectByID(cost.id).amount;
+            if (currentAmount < cost.quantity) {
+              costTooltip += `<div class="tso-biome-resource tso-row">
+              <img src="${cost.media}" />
+              <small>${(cost.quantity - currentAmount).toFixed(0)}</small>
+            </div>`;
+            }
+          }
+          costTooltip += '</div>';
+          tooltip.push(costTooltip);
+        }
+        if (biome.count <= 0) {
+          tooltip.push(`No buildings to upgrade in ${biome.name}`);
+        }
+        if (tooltip.length == 0) {
+          tooltip.push(`Upgrade x1 to ${building.upgradeName}`);
+        }
+        this.upgradeTooltip.setContent(tooltip.join('\n'));
+      }
+    },
+    mounted($el) {
+      const buildBtn = $el.querySelector('.tso-build');
+      if (buildBtn) {
+        this.buildTooltip = tippy(buildBtn, {
+          placement: 'bottom',
+          allowHTML: true,
+          interactive: false,
+          animation: false,
+        });
+      }
+      const upgradeBtn = $el.querySelector('.tso-upgrade');
+      if (upgradeBtn) {
+        this.upgradeTooltip = tippy(upgradeBtn, {
+          placement: 'bottom',
+          allowHTML: true,
+          interactive: false,
+          animation: false,
+        });
+      }
+      this.update();
+    },
+    unmounted() {
+    },
+  };
+}
+window.TOBuildingBiome = TOBuildingBiome;

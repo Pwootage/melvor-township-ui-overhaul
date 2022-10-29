@@ -43,7 +43,7 @@ export async function setup(ctx) {
       return result;
     });
 
-    changePage(game.pages.getObjectByID("melvorD:Township"))
-    btnEle.click();
+    // changePage(game.pages.getObjectByID("melvorD:Township"))
+    // btnEle.click();
   });
 }

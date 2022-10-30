@@ -143,10 +143,12 @@ export function TOTablePage(params) {
         const upgradable = !!building.upgradesTo;
         let upgradeReqsMet = false;
         let upgradeResourcesMet = false;
+        let upgradeLevelRequired;
+        let upgradePopRequired;
         let upgradeName;
         if (upgradable) {
-          const upgradeLevelRequired = game.township.populationForTier[building.upgradesTo.tier].level;
-          const upgradePopRequired = game.township.populationForTier[building.upgradesTo.tier].population;
+          upgradeLevelRequired = game.township.populationForTier[building.upgradesTo.tier].level;
+          upgradePopRequired = game.township.populationForTier[building.upgradesTo.tier].population;
           upgradeResourcesMet = upgradeCosts.every(({ met }) => met);
           upgradeReqsMet = (townshipLevel >= upgradeLevelRequired) && (townshipPop >= upgradePopRequired);
           upgradeName = building.upgradesTo.name;
@@ -168,6 +170,8 @@ export function TOTablePage(params) {
           upgradeToId: building.upgradesTo?.id,
           upgradeReqsMet,
           upgradeResourcesMet,
+          upgradeLevelRequired,
+          upgradePopRequired,
           upgradeName,
           anyBiomeBuildable,
           anyBiomeUpgradable,
@@ -329,7 +333,7 @@ export function TOBuildingBiome({ building, biome, buildQty, deleteMode }) {
       if (this.upgradeTooltip) {
         const tooltip = []
         if (!building.upgradeReqsMet) {
-          tooltip.push(`Requires Township Level ${building.levelRequired} and ${building.popRequired} Population`);
+          tooltip.push(`Requires Township Level ${building.upgradeLevelRequired} and ${building.upgradePopRequired} Population`);
         }
         if (!building.upgradeResourcesMet) {
           let costTooltip = '<div class="tso-row">Missing Resources: ';

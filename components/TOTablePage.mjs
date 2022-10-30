@@ -154,6 +154,7 @@ export function TOTablePage(params) {
 
         const anyBiomeBuildable = (buildable && biomes.some(biome => biome.freeCount > 0));
         const anyBiomeUpgradable = (upgradable && biomes.some(biome => biome.count > 0));
+        const anyBiomeDeletable = (biomes.some(biome => biome.count > 0));
 
         return {
           name: building.name,
@@ -170,6 +171,7 @@ export function TOTablePage(params) {
           upgradeName,
           anyBiomeBuildable,
           anyBiomeUpgradable,
+          anyBiomeDeletable,
           levelRequired,
           popRequired,
           costs,

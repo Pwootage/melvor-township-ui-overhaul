@@ -72,7 +72,7 @@
 
 <template id="tso-building-row">
   <div class="tso-building media d-flex align-items-center row"
-    v-if="(showLocked || building.reqsMet) && (showUnbuildable || building.anyBiomeBuildable || building.anyBiomeUpgradable) && (!showOnlyUpgradable || building.anyBiomeUpgradable)"
+    v-if="(showLocked || building.reqsMet) && (!deleteMode || building.anyBiomeDeletable) && (showUnbuildable || building.anyBiomeBuildable || building.anyBiomeUpgradable) && (!showOnlyUpgradable || building.anyBiomeUpgradable)"
     @vue:mounted="mounted($el)" @vue:unmounted="unmounted">
     <div class="tso-building-name tso-column tso-center">
       <div class="text-warning">{{building.name}}</div>

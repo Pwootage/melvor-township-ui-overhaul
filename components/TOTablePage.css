@@ -79,6 +79,10 @@
   color: #30c78d;
 }
 
+.tso-delete-icon {
+ color: #e56767;
+}
+
 .tso-build-btn[disabled] .tso-upgrade-icon[reqsmet="false"], .tso-build-btn[disabled] .tso-build-icon[reqsmet="false"] {
   color: #e56767;
 }

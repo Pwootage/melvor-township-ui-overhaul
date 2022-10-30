@@ -152,7 +152,7 @@ export function TOTablePage(params) {
           upgradeName = building.upgradesTo.name;
         }
 
-        const anyBiomeBuildable = (buildable && biomes.some(biome => biome.canBePurchased > 0));
+        const anyBiomeBuildable = (buildable && biomes.some(biome => biome.freeCount > 0));
         const anyBiomeUpgradable = (upgradable && biomes.some(biome => biome.count > 0));
 
         return {
@@ -188,31 +188,31 @@ export function TOTablePage(params) {
         this.currentFilter = null;
       }
     },
+    _setValuesToTownship(biome = null) {
+      game.township.setBuildQty(this.buildQty);
+      townshipUI.setUpgradeQty(this.buildQty);
+      townshipUI.setDestroyQty(this.buildQty);
+      if (biome) {
+        game.township.setTownBiome(game.township.biomes.getObjectByID(biome.biome));
+        game.township.setBuildBiome(game.township.biomes.getObjectByID(biome.biome));
+      }
+    },
     setBuildQty(qty) {
       this.buildQty = qty;
-      game.township.setBuildQty(this.buildQty);
-      game.township.upgradeQty = this.buildQty;
-      townshipUI.updateAllBuildingUpgradeCosts();
-      townshipUI.updateUpgradeDropdowns();
+      this._setValuesToTownship();
       this.update();
     },
     build(building, biome) {
-      game.township.setBuildQty(this.buildQty);
-      game.township.upgradeQty = this.buildQty;
-      townshipUI.updateAllBuildingUpgradeCosts();
-      townshipUI.updateUpgradeDropdowns();
-      game.township.setTownBiome(game.township.biomes.getObjectByID(biome.biome));
-      game.township.setBuildBiome(game.township.biomes.getObjectByID(biome.biome));
+      this._setValuesToTownship(biome);
       game.township.buildBuilding(game.township.buildings.getObjectByID(building.id));
     },
     upgrade(building, biome) {
-      game.township.setBuildQty(this.buildQty);
-      game.township.upgradeQty = this.buildQty;
-      townshipUI.updateAllBuildingUpgradeCosts();
-      townshipUI.updateUpgradeDropdowns();
-      game.township.setTownBiome(game.township.biomes.getObjectByID(biome.biome));
-      game.township.setBuildBiome(game.township.biomes.getObjectByID(biome.biome));
+      this._setValuesToTownship(biome);
       game.township.buildBuilding(game.township.buildings.getObjectByID(building.upgradeToId));
+    },
+    remove(building, biome) {
+      this._setValuesToTownship(biome);
+      game.township.destroyBuilding(game.township.buildings.getObjectByID(building.id));
     },
     get filteredBuildings() {
       const filter = this.currentFilter;
@@ -241,6 +241,7 @@ export function TOTablePage(params) {
     showLocked: false,
     showUnbuildable: false,
     showOnlyUpgradable: false,
+    deleteMode: false,
     buildQty: 1,
   };
 }
@@ -267,11 +268,12 @@ export function TOFilterRow({ filter }) {
 }
 window.TOFilterRow = TOFilterRow;
 
-export function TOBuildingRow({building, buildQty}) {
+export function TOBuildingRow({ building, buildQty, deleteMode }) {
   return {
     $template: `#tso-building-row`,
     building,
     buildQty,
+    deleteMode,
     update() {
     },
     mounted($el) {
@@ -288,12 +290,13 @@ export function TOBuildingRow({building, buildQty}) {
 }
 window.TOBuildingRow = TOBuildingRow;
 
-export function TOBuildingBiome({ building, biome, buildQty }) {
+export function TOBuildingBiome({ building, biome, buildQty, deleteMode }) {
   return {
     $template: `#tso-building-biome`,
     building,
     biome,
     buildQty,
+    deleteMode,
     buildTooltip: null,
     upgradeTooltip: null,
     update() {
@@ -340,9 +343,9 @@ export function TOBuildingBiome({ building, biome, buildQty }) {
           costTooltip += '</div>';
           tooltip.push(costTooltip);
         }
-        if (biome.count < this.buildQty) {
-          tooltip.push(`Not enough buildings to upgrade in ${biome.name} (${biome.count}/${this.buildQty})`);
-        }
+        // if (biome.count < this.buildQty) {
+        //   tooltip.push(`Not enough buildings to upgrade in ${biome.name} (${biome.count}/${this.buildQty})`);
+        // }
         if (tooltip.length == 0) {
           tooltip.push(`Upgrade x${this.buildQty} to ${building.upgradeName}`);
         }

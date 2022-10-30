@@ -27,6 +27,12 @@ export async function setup(ctx) {
       }
     });
 
+    ctx.patch(Township, 'destroyBuilding').after(function (result) {
+      if (townshipUI.currentPage == TABLE_PAGE) {
+        table.update();
+      }
+    });
+
     ctx.patch(TownshipUI, 'getPageButton').after(function (result, page) {
       if (page == TABLE_PAGE) {
         return this.defaultElements.btn.tsoTable;

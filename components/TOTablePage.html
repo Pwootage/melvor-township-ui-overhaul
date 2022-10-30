@@ -13,16 +13,22 @@
       <div class="col-xl-10 col-lg-10 col-md-12 pl-2">
         <div class="text-warning w-100 pb-1 mb-2 font-size-base">
           <div class="btn-group m-1 mr-3">
-            <button class="btn btn-sm" :class="{'btn-info': buildQty == 1, 'btn-outline-info': buildQty != 1}" @click="setBuildQty(1)">x1</button>
-            <button class="btn btn-sm" :class="{'btn-info': buildQty == 5, 'btn-outline-info': buildQty != 5}" @click="setBuildQty(5)">x5</button>
-            <button class="btn btn-sm" :class="{'btn-info': buildQty == 10, 'btn-outline-info': buildQty != 10}" @click="setBuildQty(10)">x10</button>
+            <button class="btn btn-sm" :class="{'btn-info': buildQty == 1, 'btn-outline-info': buildQty != 1}"
+              @click="setBuildQty(1)">x1</button>
+            <button class="btn btn-sm" :class="{'btn-info': buildQty == 5, 'btn-outline-info': buildQty != 5}"
+              @click="setBuildQty(5)">x5</button>
+            <button class="btn btn-sm" :class="{'btn-info': buildQty == 10, 'btn-outline-info': buildQty != 10}"
+              @click="setBuildQty(10)">x10</button>
           </div>
+          <label class="text-danger"><input type="checkbox" v-model="deleteMode" @change="update()" class="ml-2" />
+            Delete</label>
           <label><input type="checkbox" v-model="showOnlyUpgradable" class="ml-2" /> Show Only Upgradable</label>
           <label><input type="checkbox" v-model="showUnbuildable" class="ml-2" /> Show Unbuildable</label>
           <label v-if="showUnbuildable"><input type="checkbox" v-model="showLocked" class="ml-2" /> Show Locked</label>
         </div>
         <div class="tso-building-table column" v-if="!hideAll">
-          <div v-for="building in filteredBuildings" :key="building.id" v-scope="TOBuildingRow({building, buildQty})"></div>
+          <div v-for="building in filteredBuildings" :key="building.id"
+            v-scope="TOBuildingRow({building, buildQty, deleteMode})"></div>
         </div>
       </div>
     </div>
@@ -89,7 +95,7 @@
       </div>
     </div>
     <div v-for="biome in building.biomes">
-      <div v-scope="TOBuildingBiome({building, biome, buildQty})">
+      <div v-scope="TOBuildingBiome({building, biome, buildQty, deleteMode})">
       </div>
     </div>
   </div>
@@ -97,7 +103,7 @@
 
 <template id="tso-building-biome">
   <div class="tso-column tso-biome" @vue:mounted="mounted($el)" @vue:unmounted="unmounted"
-    v-if="(showUnbuildable || (building.buildable && biome.freeCount >= buildQty) || (building.upgradable && biome.count >= buildQty)) && (!showOnlyUpgradable || (building.reqsMet && biome.count >= buildQty))">
+    v-if="(showUnbuildable || (building.buildable && biome.freeCount >= 1) || (building.upgradable && biome.count >= 1)) && (!showOnlyUpgradable || (building.reqsMet && biome.count >= 1)) && (!deleteMode || biome.count >= 1)">
     <div><img class="tso-biome-icon" :src=biome.media /> {{biome.name}}</div>
     <div class="tso-row">
       <small>
@@ -170,17 +176,21 @@
       </div>
     </div>
     <div class="tso-row tso-space-between tso-build-col">
-      <div class="tso-build" v-if="building.buildable && !showOnlyUpgradable">
+      <div class="tso-build" v-if="!deleteMode && building.buildable && !showOnlyUpgradable">
         <button class="tso-build-btn tso-row tso-center"
           :disabled="!building.reqsMet || !building.resourcesMet || biome.freeCount < buildQty"
           @click="build(building, biome)"><i class="fa fa-hammer tso-build-icon"
             :reqsmet="building.reqsMet"></i></button>
       </div>
-      <div class="tso-upgrade" v-if="building.upgradable">
+      <div class="tso-upgrade" v-if="!deleteMode && building.upgradable">
         <button class="tso-build-btn tso-row tso-center"
-          :disabled="!building.upgradeReqsMet || !building.upgradeResourcesMet || biome.count < buildQty"
+          :disabled="!building.upgradeReqsMet || !building.upgradeResourcesMet || biome.count < 1"
           @click="upgrade(building, biome)"><i class="fa fa-arrow-up tso-upgrade-icon"
             :reqsmet="building.upgradeReqsMet"></i></button>
+      </div>
+      <div class="tso-delete" v-if="deleteMode">
+        <button class="tso-build-btn tso-row tso-center" :disabled="biome.count < 1"
+          @click="remove(building, biome)"><i class="fa fa-trash tso-delete-icon"></i></button>
       </div>
     </div>
   </div>
